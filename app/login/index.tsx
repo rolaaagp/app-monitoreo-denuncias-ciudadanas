@@ -1,0 +1,93 @@
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
+import React from 'react'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { User, Eye, EyeOff } from 'lucide-react-native';
+import CustomButton from '@/components/shared/CustomButton';
+import { Stack } from 'expo-router';
+
+const LoginScreen = () => {
+  return (
+    <>
+      <Stack.Screen 
+        options={{ 
+          title: 'Login',
+          headerStyle: { backgroundColor: '#F9FAFB' },
+          headerTintColor: '#374151'
+        }} 
+      />
+      <SafeAreaView className="flex-1 bg-gray-50">
+          <View className="flex-1 justify-center px-4">
+            
+       
+          <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            
+            <View className="items-center mb-6">
+              <View className="flex-row items-center mb-2">
+                <User size={24} color="#6B7280" />
+                <Text className="text-xl font-semibold text-gray-800 ml-2">
+                  Identificación
+                </Text>
+              </View>
+              <Text className="text-gray-600 text-center">
+                Ingrese su información personal
+              </Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 font-medium mb-2">RUN</Text>
+              <View className="relative">
+                <TextInput
+
+                  placeholder="Formato: 12.345.678-9"
+                  placeholderTextColor="#9CA3AF"
+                   className={`
+                    bg-gray-100 rounded-lg px-4 py-4 text-base 
+                    }`}
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  maxLength={12} // Para formato 12.345.678-9
+                />
+              </View>
+
+            </View>
+
+
+            <View className="mb-6">
+              <Text className="text-gray-700 font-medium mb-2">
+                Contraseña <Text className="text-red-500">*</Text>
+              </Text>
+              <View className="relative">
+                <TextInput
+                  className={`
+                    bg-gray-100 rounded-lg px-4 py-4 pr-12 text-base border}
+                   `}
+                />
+
+                <TouchableOpacity
+                  className="absolute right-4 top-4"
+                >
+                  <EyeOff size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+    
+            <CustomButton
+              variant="primary"
+              size="lg"
+              fullWidth
+            >
+              Continuar
+            </CustomButton>
+          </View>
+
+
+
+        </View>
+      </SafeAreaView>
+    
+    </>
+  )
+}
+
+export default LoginScreen
