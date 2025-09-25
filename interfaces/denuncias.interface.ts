@@ -5,7 +5,7 @@ export interface PayloadCreateDenuncia {
   user_id: number;
   tipo_denuncia: number;
   requerimiento_id: number;
-  evidencias: {
+  evidencias?: {
     filename: string;
     base64Data: string;
     contentType: string;
