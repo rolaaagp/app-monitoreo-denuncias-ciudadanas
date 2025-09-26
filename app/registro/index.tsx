@@ -1,11 +1,129 @@
-import { View, Text } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity } from 'react-native'
 import React from 'react'
+import { router, Stack } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { EyeOff, User } from 'lucide-react-native'
+import CustomButton from '@/components/shared/CustomButton'
 
 const RegistroScreen = () => {
-  return (
-    <View>
-      <Text>RegistroScreen</Text>
-    </View>
+    return (
+    <>
+      <Stack.Screen 
+        options={{ 
+          title: 'Registro',
+          headerStyle: { backgroundColor: '#F9FAFB' },
+          headerTintColor: '#374151'
+        }} 
+      />
+      <SafeAreaView className="flex-1 bg-gray-50">
+          <View className="flex-1 justify-center px-4">
+            
+       
+          <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            
+            <View className="items-center mb-6">
+              <View className="flex-row items-center mb-2">
+                <User size={24} color="#6B7280" />
+                <Text className="text-2xl font-semibold text-gray-800 ml-2">
+                  Identificación
+                </Text>
+              </View>
+              <Text className="text-gray-600 text-center text-lg">
+                Todos los campos son obligatorios
+              </Text>
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 font-medium mb-2 text-lg">RUN</Text>
+              <View className="relative">
+                <TextInput
+
+                  placeholder="Formato: 12.345.678-9"
+                  placeholderTextColor="#9CA3AF"
+                   className={`
+                    bg-gray-100 rounded-lg px-4 py-4 text-base 
+                    }`}
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  maxLength={12} // Para formato 12.345.678-9
+                />
+              </View>
+
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 font-medium mb-2 text-lg">Nombre Completo <Text className="text-red-500">*</Text></Text>
+              <View className="relative">
+                <TextInput
+
+                  placeholder="Ingrese su nombre completo"
+                  placeholderTextColor="#9CA3AF"
+                   className={`
+                    bg-gray-100 rounded-lg px-4 py-4 text-base 
+                    }`}
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  maxLength={12} // Para formato 12.345.678-9
+                />
+              </View>
+
+            </View>
+
+            <View className="mb-4">
+              <Text className="text-gray-700 font-medium mb-2 text-lg">Celular <Text className="text-red-500">*</Text></Text>
+              <View className="relative">
+                <TextInput
+
+                  placeholder="Ingrese numero de celular"
+                  placeholderTextColor="#9CA3AF"
+                   className={`
+                    bg-gray-100 rounded-lg px-4 py-4 text-base 
+                    }`}
+                  keyboardType="default"
+                  autoCapitalize="none"
+                  maxLength={12} // Para formato 12.345.678-9
+                />
+              </View>
+
+            </View>
+
+
+            <View className="mb-6">
+              <Text className="text-gray-700 font-medium mb-2 text-lg">
+                Contraseña <Text className="text-red-500">*</Text>
+              </Text>
+              <View className="relative">
+                <TextInput
+                  className={`
+                    bg-gray-100 rounded-lg px-4 py-4 pr-12 text-base border}
+                   `}
+                />
+
+                <TouchableOpacity
+                  className="absolute right-4 top-4"
+                >
+                  <EyeOff size={20} color="#6B7280" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+    
+            <CustomButton
+              onPress={ () => router.push("./map")}
+              variant="primary"
+              size="lg"
+              fullWidth
+            >
+              Continuar
+            </CustomButton>
+          </View>
+
+
+
+        </View>
+      </SafeAreaView>
+    
+    </>
   )
 }
 

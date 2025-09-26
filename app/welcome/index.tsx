@@ -40,9 +40,6 @@ const WelcomeScreen = () => {
             </Text>
           </View>
 
-
-          
-
           <View className="w-full px-2">
 
             <CustomButton 

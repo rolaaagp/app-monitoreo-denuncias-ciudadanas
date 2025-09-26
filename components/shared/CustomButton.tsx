@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 
 interface Props extends PressableProps {
     children:string;
-    variant?: 'primary' | 'secondary' | 'success' | 'danger';
+    variant?: 'primary' | 'secondary' | 'reportar' | 'success' | 'danger';
     size?: 'sm' | 'md' | 'lg';
     fullWidth?: boolean;
 }
@@ -17,6 +17,8 @@ const CustomButton = ({ children, variant = 'primary', onPress, size, fullWidth,
                 return isPressed ? 'bg-blue-400' : 'bg-blue-600';
             case 'secondary':
                 return isPressed ? 'bg-green-400' : 'bg-green-600';
+            case 'reportar':
+                return isPressed ? 'bg-[#d97d05]' : 'bg-[#bf6a02]';
             case 'success':
                 return isPressed ? 'bg-green-400' : 'bg-green-600';
             case 'danger':
