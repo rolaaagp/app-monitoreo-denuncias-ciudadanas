@@ -1,264 +1,265 @@
-import { View, Text, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native'
-import React, { useState } from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { AlertCircle, ArrowLeft, Calendar, Camera, FileText, MapPin, Plus, Tag } from 'lucide-react-native';
-import CustomButton from '@/components/shared/CustomButton';
-import { router, Stack } from 'expo-router';
-import ConfirmationModal from '@/components/ConfirmationModal';
-import CategorySelector from '@/components/CategorySelector';
+import ConfirmationModal from "@/components/ConfirmationModal";
+import CustomButton from "@/components/shared/CustomButton";
+import FechaHoraSimple from "@/components/shared/FechaHoraSimple";
+import { useToast } from "@/core/context/toastContext";
+import { useCreateDenuncia } from "@/core/hooks/useDenuncias";
+import { PayloadCreateDenuncia } from "@/core/interfaces";
+import { router, Stack } from "expo-router";
+import {
+  AlertCircle,
+  Camera,
+  FileText,
+  MapPin,
+  Plus,
+} from "lucide-react-native";
+import React, { useState } from "react";
+import {
+  Alert,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ScreenDenuncia = () => {
-    const [showModal, setShowModal] = useState(false);
-    const [formData, setFormData] = useState({
-        categoria: '',
-        subcategoria: '',
-        ubicacion: '',
-        descripcion: '',
-        fecha: '',
-        hora: ''
-    });
+  const [showModal, setShowModal] = useState(false);
+  const [fechaHora, setFechaHora] = useState<Date | null>(null);
+  const [formData, setFormData] = useState({
+    categoria: "",
+    subcategoria: "",
+    ubicacion: "",
+    descripcion: "",
+  });
 
-    const handleConfirmSubmit = () => {
+  const createMutation = useCreateDenuncia();
+
+  const { showToast } = useToast();
+
+  const validateForm = () => {
+    if (!formData.ubicacion.trim()) {
+      Alert.alert("Error", "La ubicación es obligatoria.");
+      return false;
+    }
+    if (!formData.descripcion.trim()) {
+      Alert.alert("Error", "La descripción es obligatoria.");
+      return false;
+    }
+    if (!fechaHora) {
+      Alert.alert("Error", "La fecha y hora del incidente es obligatoria.");
+      return false;
+    }
+    return true;
+  };
+
+  const handleConfirmSubmit = () => {
     setShowModal(false);
+
+    const payload: PayloadCreateDenuncia = {
+      ubicacion: formData.ubicacion,
+      detalle: formData.descripcion,
+      fecha_completa: fechaHora?.toISOString() || new Date().toISOString(),
+      user_id: 1,
+      tipo_denuncia: 1,
+      requerimiento_id: 1,
+    };
+
+    createMutation.mutate(payload, {
+      onSuccess: () => {
+        showToast({
+          title: "Denuncia Enviada",
+          message: "Su denuncia ha sido registrada exitosamente",
+          position: "top",
+          type: "success",
+          duration: 3000,
+        });
+
         setTimeout(() => {
-            Alert.alert(
-                'Denuncia Enviada',
-                'Su denuncia ha sido registrada exitosamente',
-                [
-                {
-                    text: 'OK',
-                    onPress: () => router.push('/map')
-                }
-                ]
-            );
-        }, 500);
-    };
+          router.push("/map");
+        }, 1000);
 
-    const handleSubmit = () => {
-        // if (!validateForm()) {
-        // return;
-        // }
-        // // Mostrar modal de confirmación
-        setShowModal(true);
-    };
+        // Alert.alert(
+        //   "Denuncia Enviada",
+        //   "Su denuncia ha sido registrada exitosamente",
+        //   [
+        //     {
+        //       text: "OK",
+        //       onPress: () => router.push("/map"),
+        //     },
+        //   ]
+        // );
+      },
+      onError: (error) => {
+        showToast({
+          title: "¡Ups! Algo salió mal",
+          message: "No te preocupes, puedes intentarlo de nuevo en un momento",
+          position: "top",
+          type: "warning",
+          duration: 3000,
+        });
+        console.error("Error creando denuncia:", error);
+        Alert.alert(
+          "Error",
+          "No se pudo registrar la denuncia. Intente nuevamente."
+        );
+      },
+    });
+  };
 
-    const handleCategorySelect = (category: string, subcategory: string) => {
-        setFormData(prev => ({
-        ...prev,
-        categoria: category,
-        subcategoria: subcategory
-        }));
-        
-        // // Limpiar error si existe
-        // if (errors.categoria) {
-        // setErrors(prev => ({ ...prev, categoria: '' }));
-        // }
-    };
+  const handleSubmit = () => {
+    // if (!validateForm()) {
+    //     return;
+    // }
+    // if (createMutation.isPending) {
+    //   return;
+    // }
+    setShowModal(true);
+  };
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
   return (
     <>
-        <Stack.Screen 
-                options={{ 
-                title: 'Denuncia',
-                headerStyle: { backgroundColor: '#F9FAFB' },
-                headerTintColor: '#374151'
-                }} 
-        />
+      <Stack.Screen
+        options={{
+          title: "Denuncia",
+          headerStyle: { backgroundColor: "#F9FAFB" },
+          headerTintColor: "#374151",
+        }}
+      />
 
       <SafeAreaView className="flex-1 bg-gray-50">
-        
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          
           {/* Info Section */}
-            <View className="mx-4 mt-6 mb-6">
-                <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                    <View className="flex-row items-start mb-4 ">
-                        <View className="w-6 h-6 rounded-full  items-center justify-center mr-3 mt-1">
-                            <AlertCircle size={25} color="#38BDF8" />
-                        </View>
-                        <View className="flex-1">
-                            <Text className="text-xl font-semibold text-gray-900 mb-1">
-                                Denuncias
-                            </Text>
-                            <Text className="text-lg text-gray-600 leading-5">
-                                Su información personal solo será utilizada para el seguimiento de la incidencia y posibles contactos.
-                            </Text>
-                        </View>
-                    </View>
+          <View className="mx-4 mt-6 mb-6">
+            <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <View className="flex-row items-start mb-4 ">
+                <View className="w-6 h-6 rounded-full  items-center justify-center mr-3 mt-1">
+                  <AlertCircle size={25} color="#38BDF8" />
                 </View>
+                <View className="flex-1">
+                  <Text className="text-xl font-semibold text-gray-900 mb-1">
+                    Denuncias
+                  </Text>
+                  <Text className="text-lg text-gray-600 leading-5">
+                    Su información personal solo será utilizada para el
+                    seguimiento de la incidencia y posibles contactos.
+                  </Text>
+                </View>
+              </View>
             </View>
-
+          </View>
 
           <View className="mx-4">
             <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              
-
               <View className="flex-row items-center mb-4">
                 <FileText size={22} color="#374151" />
                 <Text className="text-xl font-semibold text-gray-900 ml-2">
                   Información de la denuncia
                 </Text>
               </View>
-              
+
               <Text className="text-lg text-gray-600 mb-6">
                 Todos los campos son obligatorios
               </Text>
 
-
               <View className="mb-4">
                 <View className="flex-row items-center mb-2">
-                    <MapPin size={20} color="#6B7280" />
-                    <Text className="text-gray-700 font-medium ml-1 text-lg">
-                        Ubicación <Text className="text-red-500">*</Text>
-                    </Text>
+                  <MapPin size={20} color="#6B7280" />
+                  <Text className="text-gray-700 font-medium ml-1 text-lg">
+                    Ubicación <Text className="text-red-500">*</Text>
+                  </Text>
                 </View>
                 <TextInput
-                //   value={formData.ubicacion}
-                //   onChangeText={(text) => handleInputChange('ubicacion', text)}
-                    placeholder="Ingrese dirección o ubicación"
-                    className={`
-                        bg-gray-100 rounded-lg px-4 py-4 text-base}
-                    `}
+                  value={formData.ubicacion}
+                  onChangeText={(text) => handleInputChange("ubicacion", text)}
+                  placeholder="Ingrese dirección o ubicación"
+                  className="bg-gray-100 rounded-lg px-4 py-4 text-base"
                 />
                 <Text className="text-base text-gray-500 mt-1">
-                    Ejemplo: Av. Principal 123, Centro, Ciudad
+                  Ejemplo: Av. Principal 123, Centro, Ciudad
                 </Text>
-                {/* {errors.ubicacion ? (
-                  <Text className="text-red-500 text-sm mt-1">{errors.ubicacion}</Text>
-                ) : null} */}
               </View>
-
-            {/* <View className="mb-4">
-                <View className="flex-row items-center mb-2">
-                    <Tag size={20} color="#6B7280" />
-                    <Text className="text-gray-700 font-medium ml-1 text-lg">
-                    Tipo de denuncia <Text className="text-red-500">*</Text>
-                    </Text>
-                </View>
-
-                <CategorySelector
-                    onSelect={(cat, subcat) => {
-                    console.log("Seleccionaste:", cat, subcat);
-                    }}
-                    selectedCategory={"Incidentes de tránsito"} // Ejemplo
-                    selectedSubcategory={"Accidente de tránsito"} // Ejemplo
-                />
-            </View> */}
-
 
               <View className="mb-4">
                 <View className="flex-row items-center mb-2">
                   <FileText size={20} color="#6B7280" />
                   <Text className="text-gray-700 font-medium ml-1 text-lg">
-                    Descripción / Detalle <Text className="text-red-500">*</Text>
+                    Descripción / Detalle{" "}
+                    <Text className="text-red-500">*</Text>
                   </Text>
                 </View>
                 <TextInput
-                //   value={formData.descripcion}
-                //   onChangeText={(text) => handleInputChange('descripcion', text)}
+                  value={formData.descripcion}
+                  onChangeText={(text) =>
+                    handleInputChange("descripcion", text)
+                  }
                   placeholder="Describa detalladamente los hechos"
                   placeholderTextColor="#9CA3AF"
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className={`
-                    bg-gray-100 rounded-lg px-4 py-3 text-base  h-24
-                    '}
-                  `}
+                  className="bg-gray-100 rounded-lg px-4 py-3 text-base h-24"
                 />
                 <Text className="text-base text-gray-500 mt-1">
                   Incluya todos los detalles relevantes sobre los hechos
                 </Text>
-                {/* {errors.descripcion ? (
-                  <Text className="text-red-500 text-sm mt-1">{errors.descripcion}</Text>
-                ) : null} */}
               </View>
 
-              {/* Fecha y Hora Field */}
-              <View className="mb-6">
-                <View className="flex-row items-center mb-2">
-                  <Calendar size={20} color="#6B7280" />
-                  <Text className="text-gray-700 font-medium ml-1 text-lg">
-                    Fecha / Hora del Incidente <Text className="text-red-500">*</Text>
-                  </Text>
-                </View>
-                
-                <TouchableOpacity
-                //   onPress={formatDateTime}
-                  className={`
-                    bg-gray-100 rounded-lg px-4 py-3  flex-row items-center justify-between
-                    }
-                  `}
-                >
-                  
-                  <Calendar size={20} color="#6B7280" />
-                </TouchableOpacity> 
-                
-                <Text className="text-base text-gray-500 mt-1">
-                  Fecha y hora aproximada cuando ocurrieron los hechos
-                </Text>
-                {/* {errors.fecha ? (
-                  <Text className="text-red-500 text-sm mt-1">{errors.fecha}</Text>
-                ) : null} */}
-              </View>
-
+              <FechaHoraSimple value={fechaHora} onChange={setFechaHora} />
             </View>
           </View>
 
-
           <View className="mx-4 mt-6 mb-6">
             <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              
               <View className="flex-row items-center mb-2">
                 <Camera size={20} color="#374151" />
                 <Text className="text-lg font-semibold text-gray-900 ml-2">
                   Evidencia
                 </Text>
               </View>
-              
+
               <Text className="text-base text-gray-600 mb-4">
                 Adjunta la evidencia, archivos que estimes necesario.
               </Text>
 
-              {/* Add Evidence Button */}
-              <TouchableOpacity
-                // onPress={handleAddEvidence}
-                className="bg-gray-100 rounded-lg p-6 items-center justify-center border-2 border-dashed border-gray-300"
-              >
+              <TouchableOpacity className="bg-gray-100 rounded-lg p-6 items-center justify-center border-2 border-dashed border-gray-300">
                 <View className="w-12 h-12 rounded-full bg-blue-100 items-center justify-center mb-2">
                   <Plus size={24} color="#3B82F6" />
                 </View>
                 <Text className="text-blue-600 font-medium">Otro</Text>
               </TouchableOpacity>
-
             </View>
           </View>
 
-          {/* Submit Button */}
-            <View className="mx-4 mb-6">
-                <CustomButton
-                    onPress={handleSubmit}
-                    variant="primary"
-                    size="lg"
-                    fullWidth
-                    >
-                        Continuar
-                </CustomButton>
-            </View>
-
+          <View className="mx-4 mb-6">
+            <CustomButton
+              onPress={handleSubmit}
+              variant="primary"
+              size="lg"
+              fullWidth
+            >
+              Continuar
+            </CustomButton>
+          </View>
         </ScrollView>
 
-         <ConfirmationModal
+        <ConfirmationModal
           visible={showModal}
           onClose={() => setShowModal(false)}
           onConfirm={handleConfirmSubmit}
           title="Enviar denuncia"
           message="¿Deseas confirmar el envío de la denuncia?"
         />
-
       </SafeAreaView>
     </>
   );
-}
+};
 
-export default ScreenDenuncia
+export default ScreenDenuncia;

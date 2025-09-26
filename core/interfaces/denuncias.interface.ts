@@ -11,3 +11,14 @@ export interface PayloadCreateDenuncia {
     contentType: string;
   }[];
 }
+
+export interface GetListDenuncias {
+  id: number;
+  folio: number | null;
+  users_id: number;
+  tipos_denuncias_id: number;
+  requerimientos_id: number;
+  detalle: string;
+  ubicacion: string;
+  fecha: Date;
+}

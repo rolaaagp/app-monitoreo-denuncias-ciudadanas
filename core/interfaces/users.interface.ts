@@ -9,3 +9,14 @@ export interface PayloadCreateUser {
 export const PERFILES = {
   CIUDADANO: 2,
 };
+
+export interface User {
+  id: number;
+  run: string;
+  fullname: string;
+  telefono: string;
+  perfil: {
+    id: number;
+    nombre: string | null;
+  };
+}
