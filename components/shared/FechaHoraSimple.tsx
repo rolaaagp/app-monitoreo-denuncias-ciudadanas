@@ -8,42 +8,47 @@ type FechaHoraSimpleProps = {
   onChange: (date: Date) => void;
 };
 
-const FechaHoraSimple: React.FC<FechaHoraSimpleProps> = ({ value, onChange }) => {
+const FechaHoraSimple: React.FC<FechaHoraSimpleProps> = ({
+  value,
+  onChange,
+}) => {
   const [showPicker, setShowPicker] = useState(false);
   const [pickerMode, setPickerMode] = useState<"date" | "time">("date");
 
+  const getChileNow = () => {
+    const now = new Date();
+    const chileOffset = -3; // Chile continental UTC-3
+    const utc = now.getTime() + now.getTimezoneOffset() * 60000;
+    return new Date(utc + chileOffset * 3600000);
+  };
+
+  const displayDate = value ?? getChileNow();
+
   const handleChange = (event: any, selectedDate?: Date) => {
     const { type } = event;
-    
+
     if (type === "dismissed") {
       setShowPicker(false);
       return;
     }
 
     if (selectedDate) {
+      const newDate = value ? new Date(value) : getChileNow();
       if (pickerMode === "date") {
-        const newDate = value ? new Date(value) : new Date();
-        newDate.setFullYear(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate());
+        newDate.setFullYear(
+          selectedDate.getFullYear(),
+          selectedDate.getMonth(),
+          selectedDate.getDate()
+        );
         onChange(newDate);
-        
-        if (Platform.OS === "android") {
-          setPickerMode("time");
-        } else {
-          setShowPicker(false);
-        }
+        if (Platform.OS === "android") setPickerMode("time");
       } else {
-        const newDate = value ? new Date(value) : new Date();
         newDate.setHours(selectedDate.getHours(), selectedDate.getMinutes());
         onChange(newDate);
-        setShowPicker(false);
       }
     }
 
-    if (Platform.OS === "android" && pickerMode === "date") {
-      return;
-    }
-    
-    if (Platform.OS === "android") {
+    if (Platform.OS === "android" && pickerMode === "time") {
       setShowPicker(false);
     }
   };
@@ -51,6 +56,15 @@ const FechaHoraSimple: React.FC<FechaHoraSimpleProps> = ({ value, onChange }) =>
   const openPicker = () => {
     setPickerMode("date");
     setShowPicker(true);
+  };
+
+  const formatDateTime = (date: Date) => {
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}-${month}-${year} ${hours}:${minutes}`;
   };
 
   return (
@@ -61,16 +75,15 @@ const FechaHoraSimple: React.FC<FechaHoraSimpleProps> = ({ value, onChange }) =>
           Fecha / Hora del Incidente <Text className="text-red-500">*</Text>
         </Text>
       </View>
-      <TouchableOpacity className="bg-gray-100 rounded-lg px-4 py-3" onPress={openPicker}>
-        <Text>
-          {value
-            ? `${value.toISOString().split("T")[0]} ${value.toTimeString().slice(0, 5)}`
-            : "Seleccionar fecha y hora"}
-        </Text>
+      <TouchableOpacity
+        className="bg-gray-100 rounded-lg px-4 py-3"
+        onPress={openPicker}
+      >
+        <Text>{formatDateTime(displayDate)}</Text>
       </TouchableOpacity>
       {showPicker && (
         <DateTimePicker
-          value={value ?? new Date()}
+          value={displayDate}
           mode={pickerMode}
           is24Hour={true}
           display={Platform.OS === "ios" ? "default" : "spinner"}

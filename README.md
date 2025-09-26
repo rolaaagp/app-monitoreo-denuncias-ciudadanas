@@ -48,3 +48,10 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
+
+# Android - agregar en android/app/src/main/AndroidManifest.xml:
+# <uses-permission android:name="android.permission.CAMERA" />
+# <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+# <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />

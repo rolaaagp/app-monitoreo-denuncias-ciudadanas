@@ -1,31 +1,23 @@
+import CompleteEvidenceUploader, {
+  FileAttachment,
+} from "@/components/CompleteEvidenceUploader";
 import ConfirmationModal from "@/components/ConfirmationModal";
 import CustomButton from "@/components/shared/CustomButton";
 import FechaHoraSimple from "@/components/shared/FechaHoraSimple";
 import { useToast } from "@/core/context/toastContext";
 import { useCreateDenuncia } from "@/core/hooks/useDenuncias";
 import { PayloadCreateDenuncia } from "@/core/interfaces";
+import { processEvidenceFiles } from "@/utils/filesUtils";
 import { router, Stack } from "expo-router";
-import {
-  AlertCircle,
-  Camera,
-  FileText,
-  MapPin,
-  Plus,
-} from "lucide-react-native";
+import { AlertCircle, FileText, MapPin } from "lucide-react-native";
 import React, { useState } from "react";
-import {
-  Alert,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, ScrollView, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ScreenDenuncia = () => {
   const [showModal, setShowModal] = useState(false);
   const [fechaHora, setFechaHora] = useState<Date | null>(null);
+  const [evidenceFiles, setEvidenceFiles] = useState<FileAttachment[]>([]);
   const [formData, setFormData] = useState({
     categoria: "",
     subcategoria: "",
@@ -53,8 +45,10 @@ const ScreenDenuncia = () => {
     return true;
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     setShowModal(false);
+
+    const evidencias = await processEvidenceFiles(evidenceFiles);
 
     const payload: PayloadCreateDenuncia = {
       ubicacion: formData.ubicacion,
@@ -63,6 +57,7 @@ const ScreenDenuncia = () => {
       user_id: 1,
       tipo_denuncia: 1,
       requerimiento_id: 1,
+      evidencias,
     };
 
     createMutation.mutate(payload, {
@@ -216,27 +211,31 @@ const ScreenDenuncia = () => {
             </View>
           </View>
 
-          <View className="mx-4 mt-6 mb-6">
-            <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <View className="flex-row items-center mb-2">
-                <Camera size={20} color="#374151" />
-                <Text className="text-lg font-semibold text-gray-900 ml-2">
-                  Evidencia
-                </Text>
-              </View>
-
-              <Text className="text-base text-gray-600 mb-4">
-                Adjunta la evidencia, archivos que estimes necesario.
-              </Text>
-
-              <TouchableOpacity className="bg-gray-100 rounded-lg p-6 items-center justify-center border-2 border-dashed border-gray-300">
-                <View className="w-12 h-12 rounded-full bg-blue-100 items-center justify-center mb-2">
-                  <Plus size={24} color="#3B82F6" />
+          {/* <View className="mb-4">
+                <View className="flex-row items-center mb-2">
+                    <Tag size={20} color="#6B7280" />
+                    <Text className="text-gray-700 font-medium ml-1 text-lg">
+                    Tipo de denuncia <Text className="text-red-500">*</Text>
+                    </Text>
                 </View>
-                <Text className="text-blue-600 font-medium">Otro</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+
+                <CategorySelector
+                    onSelect={(cat, subcat) => {
+                    console.log("Seleccionaste:", cat, subcat);
+                    }}
+                    selectedCategory={"Incidentes de tránsito"} // Ejemplo
+                    selectedSubcategory={"Accidente de tránsito"} // Ejemplo
+                />
+            </View> */}
+
+          <CompleteEvidenceUploader
+            onFilesChange={(files) => {
+              setEvidenceFiles(files);
+              setFormData((prev) => ({ ...prev, evidencias: files }));
+            }}
+            maxFiles={10}
+            maxSizeMB={25}
+          />
 
           <View className="mx-4 mb-6">
             <CustomButton
