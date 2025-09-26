@@ -103,12 +103,12 @@ const ScreenDenuncia = () => {
   };
 
   const handleSubmit = () => {
-    // if (!validateForm()) {
-    //     return;
-    // }
-    // if (createMutation.isPending) {
-    //   return;
-    // }
+    if (!validateForm()) {
+        return;
+    }
+    if (createMutation.isPending) {
+      return;
+    }
     setShowModal(true);
   };
 
