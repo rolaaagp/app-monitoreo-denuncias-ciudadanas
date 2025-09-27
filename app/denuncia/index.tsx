@@ -25,24 +25,18 @@ const ScreenDenuncia = () => {
     descripcion: "",
   });
 
-  const createMutation = useCreateDenuncia();
+  const [errors, setErrors] = useState<{ ubicacion?: string; descripcion?: string; fechaHora?: string }>({});
 
+  const createMutation = useCreateDenuncia();
   const { showToast } = useToast();
 
   const validateForm = () => {
-    if (!formData.ubicacion.trim()) {
-      Alert.alert("Error", "La ubicación es obligatoria.");
-      return false;
-    }
-    if (!formData.descripcion.trim()) {
-      Alert.alert("Error", "La descripción es obligatoria.");
-      return false;
-    }
-    if (!fechaHora) {
-      Alert.alert("Error", "La fecha y hora del incidente es obligatoria.");
-      return false;
-    }
-    return true;
+    const newErrors: typeof errors = {};
+    if (!formData.ubicacion.trim()) newErrors.ubicacion = "La ubicación es obligatoria.";
+    if (!formData.descripcion.trim()) newErrors.descripcion = "La descripción es obligatoria.";
+    if (!fechaHora) newErrors.fechaHora = "La fecha y hora del incidente es obligatoria.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleConfirmSubmit = async () => {
@@ -70,53 +64,31 @@ const ScreenDenuncia = () => {
           duration: 3000,
         });
 
-        setTimeout(() => {
-          router.push("/map");
-        }, 1000);
-
-        // Alert.alert(
-        //   "Denuncia Enviada",
-        //   "Su denuncia ha sido registrada exitosamente",
-        //   [
-        //     {
-        //       text: "OK",
-        //       onPress: () => router.push("/map"),
-        //     },
-        //   ]
-        // );
+        setTimeout(() => router.push("/map"), 1000);
       },
-      onError: (error:any) => {
+      onError: (error: any) => {
         showToast({
-          title: "¡Ups! Algo salió mal",
+          title: "¡Ups! Axlo salió mal",
           message: "No te preocupes, puedes intentarlo de nuevo en un momento",
           position: "top",
           type: "warning",
           duration: 3000,
         });
         console.error("Error creando denuncia:", error);
-        Alert.alert(
-          "Error",
-          "No se pudo registrar la denuncia. Intente nuevamente."
-        );
+        Alert.alert("Error", "No se pudo registrar la denuncia. Intente nuevamente.");
       },
     });
   };
 
   const handleSubmit = () => {
-    if (!validateForm()) {
-        return;
-    }
-    if (createMutation.isPending) {
-      return;
-    }
+    if (!validateForm()) return;
+    if (createMutation.isPending) return;
     setShowModal(true);
   };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => ({ ...prev, [field]: "" }));
   };
 
   return (
@@ -136,7 +108,6 @@ const ScreenDenuncia = () => {
 
       <SafeAreaView className="flex-1 bg-gray-50">
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-          {/* Info Section */}
           <View className="mx-4 mt-6 mb-6">
             <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <View className="flex-row items-start mb-4 ">
@@ -144,12 +115,9 @@ const ScreenDenuncia = () => {
                   <AlertCircle size={25} color="#38BDF8" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-xl font-semibold text-gray-900 mb-1">
-                    Denuncias
-                  </Text>
-                  <Text className="text-lg text-gray-600 leading-5">
-                    Su información personal solo será utilizada para el
-                    seguimiento de la incidencia y posibles contactos.
+                  <Text className="text-2xl font-semibold text-gray-900 mb-1">Denuncias</Text>
+                  <Text className="text-xl text-gray-600 leading-5">
+                    Su información personal solo será utilizada para el seguimiento de la incidencia y posibles contactos.
                   </Text>
                 </View>
               </View>
@@ -160,19 +128,15 @@ const ScreenDenuncia = () => {
             <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <View className="flex-row items-center mb-4">
                 <FileText size={22} color="#374151" />
-                <Text className="text-xl font-semibold text-gray-900 ml-2">
-                  Información de la denuncia
-                </Text>
+                <Text className="text-xl font-semibold text-gray-900 ml-2">Información de la denuncia</Text>
               </View>
 
-              <Text className="text-lg text-gray-600 mb-6">
-                Todos los campos son obligatorios
-              </Text>
+              <Text className="text-xl text-gray-600 mb-6">Todos los campos son obligatorios</Text>
 
-              <View className="mb-4">
+              <View className="mb-7">
                 <View className="flex-row items-center mb-2">
                   <MapPin size={20} color="#6B7280" />
-                  <Text className="text-gray-700 font-medium ml-1 text-lg">
+                  <Text className="text-gray-700 font-medium ml-1 text-xl">
                     Ubicación <Text className="text-red-500">*</Text>
                   </Text>
                 </View>
@@ -180,58 +144,37 @@ const ScreenDenuncia = () => {
                   value={formData.ubicacion}
                   onChangeText={(text) => handleInputChange("ubicacion", text)}
                   placeholder="Ingrese dirección o ubicación"
-                  className="bg-gray-100 rounded-lg px-4 py-4 text-base"
+                  className={`bg-gray-100 rounded-xl px-4 py-4 text-xl ${errors.ubicacion ? "border border-red-500 bg-red-50" : "border border-gray-200"}`}
                 />
-                <Text className="text-base text-gray-500 mt-1">
-                  Ejemplo: Av. Principal 123, Centro, Ciudad
-                </Text>
+                {errors.ubicacion && <Text className="text-red-500 mt-1">{errors.ubicacion}</Text>}
+                <Text className="text-xl text-gray-500 mt-1">Ejemplo: Av. Principal 123, Centro, Ciudad</Text>
               </View>
 
-              <View className="mb-4">
+              <View className="mb-7">
                 <View className="flex-row items-center mb-2">
                   <FileText size={20} color="#6B7280" />
-                  <Text className="text-gray-700 font-medium ml-1 text-lg">
-                    Descripción / Detalle{" "}
-                    <Text className="text-red-500">*</Text>
+                  <Text className="text-gray-700 font-medium ml-1 text-xl">
+                    Descripción / Detalle <Text className="text-red-500">*</Text>
                   </Text>
                 </View>
                 <TextInput
                   value={formData.descripcion}
-                  onChangeText={(text) =>
-                    handleInputChange("descripcion", text)
-                  }
+                  onChangeText={(text) => handleInputChange("descripcion", text)}
                   placeholder="Describa detalladamente los hechos"
                   placeholderTextColor="#9CA3AF"
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"
-                  className="bg-gray-100 rounded-lg px-4 py-3 text-base h-24"
+                  className={`bg-gray-100 rounded-xl px-4 py-3 text-xl h-24 ${errors.descripcion ? "border border-red-500 bg-red-50" : "border border-gray-200"}`}
                 />
-                <Text className="text-base text-gray-500 mt-1">
-                  Incluya todos los detalles relevantes sobre los hechos
-                </Text>
+                {errors.descripcion && <Text className="text-red-500 mt-1">{errors.descripcion}</Text>}
+                <Text className="text-xl text-gray-500 mt-1">Incluya todos los detalles relevantes sobre los hechos</Text>
               </View>
 
               <FechaHoraSimple value={fechaHora} onChange={setFechaHora} />
+              {errors.fechaHora && <Text className="text-red-500 mt-1">{errors.fechaHora}</Text>}
             </View>
           </View>
-
-          {/* <View className="mb-4">
-                <View className="flex-row items-center mb-2">
-                    <Tag size={20} color="#6B7280" />
-                    <Text className="text-gray-700 font-medium ml-1 text-lg">
-                    Tipo de denuncia <Text className="text-red-500">*</Text>
-                    </Text>
-                </View>
-
-                <CategorySelector
-                    onSelect={(cat, subcat) => {
-                    console.log("Seleccionaste:", cat, subcat);
-                    }}
-                    selectedCategory={"Incidentes de tránsito"} // Ejemplo
-                    selectedSubcategory={"Accidente de tránsito"} // Ejemplo
-                />
-            </View> */}
 
           <CompleteEvidenceUploader
             onFilesChange={(files) => {
@@ -243,12 +186,7 @@ const ScreenDenuncia = () => {
           />
 
           <View className="mx-4 mb-6">
-            <CustomButton
-              onPress={handleSubmit}
-              variant="primary"
-              size="lg"
-              fullWidth
-            >
+            <CustomButton onPress={handleSubmit} variant="primary" size="xl" fullWidth>
               Continuar
             </CustomButton>
           </View>

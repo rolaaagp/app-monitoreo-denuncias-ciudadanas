@@ -270,8 +270,8 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
         {icon}
       </View>
       <View className="flex-1">
-        <Text className="text-gray-900 font-semibold text-base">{title}</Text>
-        <Text className="text-gray-600 text-sm">{subtitle}</Text>
+        <Text className="text-gray-900 font-semibold text-xl">{title}</Text>
+        <Text className="text-gray-600 text-lg">{subtitle}</Text>
       </View>
     </TouchableOpacity>
   );
@@ -282,15 +282,15 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
         <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <View className="flex-row items-center mb-2">
             <Camera size={20} color="#374151" />
-            <Text className="text-lg font-semibold text-gray-900 ml-2">
+            <Text className="text-2xl font-semibold text-gray-900 ml-2">
               Evidencia
             </Text>
-            <Text className="text-sm text-gray-500 ml-2">
+            <Text className="text-base text-gray-500 ml-2">
               ({attachedFiles.length}/{maxFiles})
             </Text>
           </View>
 
-          <Text className="text-base text-gray-600 mb-4">
+          <Text className="text-xl text-gray-600 mb-4">
             Toma fotos, graba o selecciona archivos como evidencia (máx. {maxSizeMB}MB
             c/u)
           </Text>
@@ -356,7 +356,7 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
               />
             </View>
             <Text
-              className={`font-medium ${
+              className={`font-medium text-xl ${
                 attachedFiles.length >= maxFiles
                   ? "text-gray-400"
                   : "text-blue-600"
@@ -367,7 +367,7 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
                 : "Agregar evidencia"}
             </Text>
             {attachedFiles.length === 0 && (
-              <Text className="text-xs text-gray-500 mt-1 text-center">
+              <Text className="text-base text-gray-500 mt-1 text-center">
                 Fotos, videos, documentos, etc.
               </Text>
             )}
@@ -386,7 +386,7 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
           <View className="bg-gray-100 rounded-t-3xl pt-6 pb-8 px-4">
             <View className="w-12 h-1 bg-gray-300 rounded-full self-center mb-6" />
 
-            <Text className="text-xl font-bold text-gray-900 text-center mb-6">
+            <Text className="text-2xl font-bold text-gray-900 text-center mb-6">
               Seleccionar evidencia
             </Text>
 
@@ -426,7 +426,7 @@ const ExpoEvidenceUploader: React.FC<EvidenceUploaderProps> = ({
               onPress={() => setShowOptionsModal(false)}
               className="mt-4 bg-gray-300 rounded-lg py-4"
             >
-              <Text className="text-gray-700 font-semibold text-center text-base">
+              <Text className="text-gray-700 font-semibold text-center text-xl">
                 Cancelar
               </Text>
             </TouchableOpacity>

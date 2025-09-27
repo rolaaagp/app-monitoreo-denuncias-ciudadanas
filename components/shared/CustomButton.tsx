@@ -1,10 +1,10 @@
-import { Text, PressableProps, Pressable } from 'react-native'
-import React, { useState } from 'react'
+import React, { useState } from 'react';
+import { Pressable, PressableProps, Text } from 'react-native';
 
 interface Props extends PressableProps {
     children:string;
     variant?: 'primary' | 'secondary' | 'reportar' | 'success' | 'danger';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | '2xl' | 'xl';
     fullWidth?: boolean;
 }
 
@@ -49,6 +49,10 @@ const CustomButton = ({ children, variant = 'primary', onPress, size, fullWidth,
             return 'text-base';
         case 'lg':
             return 'text-lg';
+        case 'xl':
+            return 'text-xl';
+        case '2xl':
+            return 'text-2xl';
         default:
             return 'text-base';
         }
