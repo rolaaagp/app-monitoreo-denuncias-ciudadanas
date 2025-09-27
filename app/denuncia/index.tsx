@@ -85,7 +85,7 @@ const ScreenDenuncia = () => {
         //   ]
         // );
       },
-      onError: (error) => {
+      onError: (error:any) => {
         showToast({
           title: "¡Ups! Algo salió mal",
           message: "No te preocupes, puedes intentarlo de nuevo en un momento",
@@ -103,12 +103,12 @@ const ScreenDenuncia = () => {
   };
 
   const handleSubmit = () => {
-    // if (!validateForm()) {
-    //     return;
-    // }
-    // if (createMutation.isPending) {
-    //   return;
-    // }
+    if (!validateForm()) {
+        return;
+    }
+    if (createMutation.isPending) {
+      return;
+    }
     setShowModal(true);
   };
 

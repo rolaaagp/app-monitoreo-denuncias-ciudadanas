@@ -2,6 +2,9 @@ import CustomButton from "@/components/shared/CustomButton";
 import { useToast } from "@/core/context/toastContext";
 import { useUser } from "@/core/context/userContext";
 import { useLogin } from "@/core/hooks/useUsers";
+import { PermisionsStatus } from "@/core/interfaces/locations";
+import PermissionsCheckerProvider from "@/presentation/providers/PermissionsCheckerProvider";
+import { usePermissionsStore } from "@/presentation/store/usePermissions";
 import { formatearRut, validarRut } from "@/utils/validatorsUtils";
 import { router, Stack } from "expo-router";
 import { Eye, EyeOff, User } from "lucide-react-native";
@@ -14,15 +17,17 @@ import {
   View,
 } from "react-native";
 
-const LoginScreen = () => {
+const LoginContent = () => {
   const [run, setRun] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ run?: string; password?: string }>({});
+  const [isLoginSuccess, setIsLoginSuccess] = useState(false);
 
   const loginMutation = useLogin();
   const { login } = useUser();
   const { showToast } = useToast();
+  const { checkLocationPermission } = usePermissionsStore();
 
   const handleInputChange = (field: "run" | "password", value: string) => {
     if (field === "run") setRun(formatearRut(value));
@@ -33,14 +38,10 @@ const LoginScreen = () => {
 
   const validateForm = () => {
     const newErrors: { run?: string; password?: string } = {};
-
     if (!run.trim()) newErrors.run = "El RUN es obligatorio.";
     else if (!validarRut(run)) newErrors.run = "El RUN no es válido.";
-
     if (!password.trim()) newErrors.password = "La contraseña es obligatoria.";
-
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
@@ -51,11 +52,11 @@ const LoginScreen = () => {
     loginMutation.mutate(
       { run, password },
       {
-        onSuccess: (res) => {
+        onSuccess: async (res) => {
           if (!res.data) {
             showToast({
               title: "",
-              message: "Crendenciales incorrectas",
+              message: "Credenciales incorrectas",
               type: "info",
               duration: 3000,
               position: "top",
@@ -63,7 +64,8 @@ const LoginScreen = () => {
             return;
           }
           login(res.data);
-          router.push("/map");
+          setIsLoginSuccess(true);
+          await checkLocationPermission();
         },
         onError: (error: Error) => {
           console.error("Error al iniciar sesión:", error);
@@ -79,11 +81,15 @@ const LoginScreen = () => {
     );
   };
 
+  const handlePermissionChange = (status: PermisionsStatus) => {
+    if (!isLoginSuccess) return;
+    if (status === PermisionsStatus.GRANTED) router.push("./map");
+    else if (status !== PermisionsStatus.CHECKING) router.push("./permissions");
+  };
+
   const inputClass = (field: "run" | "password") =>
     `rounded-lg px-4 py-4 text-base ${
-      errors[field]
-        ? "border border-red-500 bg-red-50"
-        : "bg-gray-100 border border-gray-200"
+      errors[field] ? "border border-red-500 bg-red-50" : "bg-gray-100 border border-gray-200"
     }`;
 
   return (
@@ -109,6 +115,7 @@ const LoginScreen = () => {
                 Ingrese su información personal
               </Text>
             </View>
+
             <View className="mb-4">
               <View className="flex-row items-center mb-2">
                 <Text className="text-gray-700 font-medium text-lg">RUN</Text>
@@ -122,11 +129,9 @@ const LoginScreen = () => {
                 className={inputClass("run")}
                 autoCapitalize="none"
                 keyboardType="default"
-                maxLength={10}
+                maxLength={12}
               />
-              {errors.run && (
-                <Text className="text-red-500 mt-1">{errors.run}</Text>
-              )}
+              {errors.run && <Text className="text-red-500 mt-1">{errors.run}</Text>}
             </View>
 
             <View className="mb-6">
@@ -134,7 +139,6 @@ const LoginScreen = () => {
                 <Text className="text-gray-700 font-medium text-lg">Contraseña</Text>
                 <Text className="text-red-500 ml-1">*</Text>
               </View>
-
               <View className="relative">
                 <TextInput
                   value={password}
@@ -148,16 +152,10 @@ const LoginScreen = () => {
                   className="absolute right-4 top-4"
                   onPress={() => setShowPassword((prev) => !prev)}
                 >
-                  {showPassword ? (
-                    <Eye size={20} color="#6B7280" />
-                  ) : (
-                    <EyeOff size={20} color="#6B7280" />
-                  )}
+                  {showPassword ? <Eye size={20} color="#6B7280" /> : <EyeOff size={20} color="#6B7280" />}
                 </TouchableOpacity>
               </View>
-              {errors.password && (
-                <Text className="text-red-500 mt-1">{errors.password}</Text>
-              )}
+              {errors.password && <Text className="text-red-500 mt-1">{errors.password}</Text>}
             </View>
 
             <CustomButton
@@ -165,15 +163,25 @@ const LoginScreen = () => {
               variant="primary"
               size="lg"
               fullWidth
-              disabled={loginMutation.isPending}
+              disabled={loginMutation.isPending || isLoginSuccess}
             >
-              {loginMutation.isPending ? "Verificando..." : "Continuar"}
+              {loginMutation.isPending ? "Verificando..." : isLoginSuccess ? "Verificando permisos..." : "Continuar"}
             </CustomButton>
           </View>
         </View>
       </SafeAreaView>
+
+      <PermissionsCheckerProvider
+        autoNavigate={false}
+        checkOnMount={false}
+        onPermissionChange={handlePermissionChange}
+      >
+        <></>
+      </PermissionsCheckerProvider>
     </>
   );
 };
+
+const LoginScreen = () => <LoginContent />;
 
 export default LoginScreen;
