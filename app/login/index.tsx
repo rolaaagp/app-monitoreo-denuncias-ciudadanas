@@ -8,7 +8,7 @@ import { usePermissionsStore } from "@/presentation/store/usePermissions";
 import { formatearRut, validarRut } from "@/utils/validatorsUtils";
 import { router, Stack } from "expo-router";
 import { Eye, EyeOff, User } from "lucide-react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
   Text,
@@ -28,6 +28,12 @@ const LoginContent = () => {
   const { login } = useUser();
   const { showToast } = useToast();
   const { checkLocationPermission } = usePermissionsStore();
+
+  useEffect(() => {
+    if (isLoginSuccess) {
+      checkLocationPermission();
+    }
+  }, [isLoginSuccess]);
 
   const handleInputChange = (field: "run" | "password", value: string) => {
     if (field === "run") setRun(formatearRut(value));
@@ -82,14 +88,17 @@ const LoginContent = () => {
   };
 
   const handlePermissionChange = (status: PermisionsStatus) => {
-    if (!isLoginSuccess) return;
-    if (status === PermisionsStatus.GRANTED) router.push("./map");
+    if (!isLoginSuccess || loginMutation.isPending) return;
+    if (isLoginSuccess && status === PermisionsStatus.GRANTED)
+      router.push("./map");
     else if (status !== PermisionsStatus.CHECKING) router.push("./permissions");
   };
 
   const inputClass = (field: "run" | "password") =>
     `rounded-lg px-4 py-4 text-base ${
-      errors[field] ? "border border-red-500 bg-red-50" : "bg-gray-100 border border-gray-200"
+      errors[field]
+        ? "border border-red-500 bg-red-50"
+        : "bg-gray-100 border border-gray-200"
     }`;
 
   return (
@@ -131,12 +140,16 @@ const LoginContent = () => {
                 keyboardType="default"
                 maxLength={12}
               />
-              {errors.run && <Text className="text-red-500 mt-1">{errors.run}</Text>}
+              {errors.run && (
+                <Text className="text-red-500 mt-1">{errors.run}</Text>
+              )}
             </View>
 
             <View className="mb-6">
               <View className="flex-row items-center mb-2">
-                <Text className="text-gray-700 font-medium text-lg">Contraseña</Text>
+                <Text className="text-gray-700 font-medium text-lg">
+                  Contraseña
+                </Text>
                 <Text className="text-red-500 ml-1">*</Text>
               </View>
               <View className="relative">
@@ -152,10 +165,16 @@ const LoginContent = () => {
                   className="absolute right-4 top-4"
                   onPress={() => setShowPassword((prev) => !prev)}
                 >
-                  {showPassword ? <Eye size={20} color="#6B7280" /> : <EyeOff size={20} color="#6B7280" />}
+                  {showPassword ? (
+                    <Eye size={20} color="#6B7280" />
+                  ) : (
+                    <EyeOff size={20} color="#6B7280" />
+                  )}
                 </TouchableOpacity>
               </View>
-              {errors.password && <Text className="text-red-500 mt-1">{errors.password}</Text>}
+              {errors.password && (
+                <Text className="text-red-500 mt-1">{errors.password}</Text>
+              )}
             </View>
 
             <CustomButton
@@ -163,9 +182,9 @@ const LoginContent = () => {
               variant="primary"
               size="lg"
               fullWidth
-              disabled={loginMutation.isPending || isLoginSuccess}
+              disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? "Verificando..." : isLoginSuccess ? "Verificando permisos..." : "Continuar"}
+              {loginMutation.isPending ? "Verificando..." : "Continuar"}
             </CustomButton>
           </View>
         </View>
