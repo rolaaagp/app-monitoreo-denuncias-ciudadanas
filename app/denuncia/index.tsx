@@ -9,9 +9,9 @@ import { useCreateDenuncia } from "@/core/hooks/useDenuncias";
 import { PayloadCreateDenuncia } from "@/core/interfaces";
 import { processEvidenceFiles } from "@/utils/filesUtils";
 import { router, Stack } from "expo-router";
-import { AlertCircle, FileText, MapPin } from "lucide-react-native";
+import { AlertCircle, ArrowLeft, FileText, MapPin } from "lucide-react-native";
 import React, { useState } from "react";
-import { Alert, ScrollView, Text, TextInput, View } from "react-native";
+import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ScreenDenuncia = () => {
@@ -126,6 +126,11 @@ const ScreenDenuncia = () => {
           title: "Denuncia",
           headerStyle: { backgroundColor: "#F9FAFB" },
           headerTintColor: "#374151",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.push("/map")} style={{ paddingHorizontal: 16 }}>
+              <ArrowLeft size={24} color="#374151" />
+            </TouchableOpacity>
+          ),
         }}
       />
 

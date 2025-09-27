@@ -1,3 +1,4 @@
+// UserProvider.tsx
 import { User } from "@core/interfaces";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Href, router } from "expo-router";
@@ -32,22 +33,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const login = async (userData: User) => {
-    try {
-      setUserState(userData);
-      await AsyncStorage.setItem("user", JSON.stringify(userData));
-    } catch (e) {
-      console.error("Error saving user", e);
-    }
+    setUserState(userData);
+    await AsyncStorage.setItem("user", JSON.stringify(userData));
   };
 
   const logout = async () => {
-    try {
-      setUserState(null);
-      await AsyncStorage.removeItem("user");
-      router.replace("/registro");
-    } catch (e) {
-      console.error("Error clearing user", e);
-    }
+    setUserState(null);
+    await AsyncStorage.removeItem("user");
+    router.replace("/registro");
   };
 
   const setUser = (u: User | null) => setUserState(u);
@@ -61,13 +54,9 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     setUser,
   };
 
-  if (loading) return null;
+  if (loading) return null; // aquí podrías poner un spinner si quieres
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export const useUser = () => {
@@ -76,12 +65,22 @@ export const useUser = () => {
   return ctx;
 };
 
-export const ProtectedRoute = ({ children, redirectTo = "/registro" }: { children: ReactNode; redirectTo?: string }) => {
+// ProtectedRoute.tsx
+export const ProtectedRoute = ({
+  children,
+  redirectTo = "/registro",
+}: {
+  children: ReactNode;
+  redirectTo?: string;
+}) => {
   const { isAuthenticated, loading } = useUser();
+
   useEffect(() => {
     if (!loading && !isAuthenticated) router.replace(redirectTo as Href);
   }, [loading, isAuthenticated]);
+
   if (loading) return null;
   if (!isAuthenticated) return null;
+
   return <>{children}</>;
 };

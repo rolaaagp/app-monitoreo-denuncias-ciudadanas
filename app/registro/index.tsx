@@ -6,7 +6,7 @@ import { useCreateUser } from "@/core/hooks/useUsers";
 import { PayloadCreateUser } from "@/core/interfaces";
 import { formatearRut } from "@/utils/validatorsUtils";
 import { router, Stack } from "expo-router";
-import { EyeOff, User } from "lucide-react-native";
+import { ArrowLeft, EyeOff, User } from "lucide-react-native";
 import React, { useState } from "react";
 import { Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -111,6 +111,11 @@ const RegistroScreen = () => {
           title: "Registro",
           headerStyle: { backgroundColor: "#F9FAFB" },
           headerTintColor: "#374151",
+          headerLeft: () => (
+            <TouchableOpacity onPress={() => router.push("/map")} style={{ paddingHorizontal: 16 }}>
+              <ArrowLeft size={24} color="#374151" />
+            </TouchableOpacity>
+          ),
         }}
       />
       <SafeAreaView className="flex-1 bg-gray-50">

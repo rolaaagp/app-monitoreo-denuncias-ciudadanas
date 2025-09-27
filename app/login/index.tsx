@@ -7,7 +7,7 @@ import PermissionsCheckerProvider from "@/presentation/providers/PermissionsChec
 import { usePermissionsStore } from "@/presentation/store/usePermissions";
 import { formatearRut, validarRut } from "@/utils/validatorsUtils";
 import { router, Stack } from "expo-router";
-import { Eye, EyeOff, User } from "lucide-react-native";
+import { ArrowLeft, Eye, EyeOff, User } from "lucide-react-native";
 import React, { useEffect, useState } from "react";
 import {
   SafeAreaView,
@@ -108,6 +108,11 @@ const LoginContent = () => {
           title: "Login",
           headerStyle: { backgroundColor: "#F9FAFB" },
           headerTintColor: "#374151",
+          headerLeft: () => (
+              <TouchableOpacity onPress={() => router.push("/map")} style={{ paddingHorizontal: 16 }}>
+                <ArrowLeft size={24} color="#374151" />
+              </TouchableOpacity>
+            ),
         }}
       />
       <SafeAreaView className="flex-1 bg-gray-50">
