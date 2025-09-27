@@ -85,7 +85,7 @@ const ScreenDenuncia = () => {
         //   ]
         // );
       },
-      onError: (error) => {
+      onError: (error:any) => {
         showToast({
           title: "¡Ups! Algo salió mal",
           message: "No te preocupes, puedes intentarlo de nuevo en un momento",
