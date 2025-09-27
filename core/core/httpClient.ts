@@ -76,5 +76,5 @@ class HttpClient {
 }
 
 // const API_URL = Constants.expoConfig?.extra?.apiUrl as string;
-const API_URL = "https://api.cloudynex.cl";
+const API_URL = "https://api-monitoreo-denuncias.cloudynex.cl";
 export const httpClient = new HttpClient(API_URL);

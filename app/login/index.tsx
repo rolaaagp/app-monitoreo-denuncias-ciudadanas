@@ -1,26 +1,103 @@
-import { View, Text, TextInput, TouchableOpacity } from 'react-native'
-import React from 'react'
-import { SafeAreaView } from 'react-native-safe-area-context'
-import { User, Eye, EyeOff } from 'lucide-react-native';
-import CustomButton from '@/components/shared/CustomButton';
-import { router, Stack } from 'expo-router';
+import CustomButton from "@/components/shared/CustomButton";
+import { useToast } from "@/core/context/toastContext";
+import { useUser } from "@/core/context/userContext";
+import { useLogin } from "@/core/hooks/useUsers";
+import { formatearRut, validarRut } from "@/utils/validatorsUtils";
+import { router, Stack } from "expo-router";
+import { Eye, EyeOff, User } from "lucide-react-native";
+import React, { useState } from "react";
+import {
+  SafeAreaView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 const LoginScreen = () => {
+  const [run, setRun] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState<{ run?: string; password?: string }>({});
+
+  const loginMutation = useLogin();
+  const { login } = useUser();
+  const { showToast } = useToast();
+
+  const handleInputChange = (field: "run" | "password", value: string) => {
+    if (field === "run") setRun(formatearRut(value));
+    else setPassword(value);
+
+    setErrors((prev) => ({ ...prev, [field]: "" }));
+  };
+
+  const validateForm = () => {
+    const newErrors: { run?: string; password?: string } = {};
+
+    if (!run.trim()) newErrors.run = "El RUN es obligatorio.";
+    else if (!validarRut(run)) newErrors.run = "El RUN no es válido.";
+
+    if (!password.trim()) newErrors.password = "La contraseña es obligatoria.";
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleLogin = () => {
+    if (!validateForm()) return;
+    if (loginMutation.isPending) return;
+
+    loginMutation.mutate(
+      { run, password },
+      {
+        onSuccess: (res) => {
+          if (!res.data) {
+            showToast({
+              title: "",
+              message: "Crendenciales incorrectas",
+              type: "info",
+              duration: 3000,
+              position: "top",
+            });
+            return;
+          }
+          login(res.data);
+          router.push("/map");
+        },
+        onError: (error: Error) => {
+          console.error("Error al iniciar sesión:", error);
+          showToast({
+            title: "",
+            message: error.message,
+            type: "warning",
+            duration: 3000,
+            position: "top",
+          });
+        },
+      }
+    );
+  };
+
+  const inputClass = (field: "run" | "password") =>
+    `rounded-lg px-4 py-4 text-base ${
+      errors[field]
+        ? "border border-red-500 bg-red-50"
+        : "bg-gray-100 border border-gray-200"
+    }`;
+
   return (
     <>
-      <Stack.Screen 
-        options={{ 
-          title: 'Login',
-          headerStyle: { backgroundColor: '#F9FAFB' },
-          headerTintColor: '#374151'
-        }} 
+      <Stack.Screen
+        options={{
+          title: "Login",
+          headerStyle: { backgroundColor: "#F9FAFB" },
+          headerTintColor: "#374151",
+        }}
       />
       <SafeAreaView className="flex-1 bg-gray-50">
-          <View className="flex-1 justify-center px-4">
-            
-       
+        <View className="flex-1 justify-center px-4">
           <View className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-            
             <View className="items-center mb-6">
               <View className="flex-row items-center mb-2">
                 <User size={24} color="#6B7280" />
@@ -32,63 +109,71 @@ const LoginScreen = () => {
                 Ingrese su información personal
               </Text>
             </View>
-
             <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-2 text-lg">RUN</Text>
-              <View className="relative">
-                <TextInput
-
-                  placeholder="Formato: 12.345.678-9"
-                  placeholderTextColor="#9CA3AF"
-                  className={`
-                    bg-gray-100 rounded-lg px-4 py-4 text-base 
-                    }`}
-                  keyboardType="default"
-                  autoCapitalize="none"
-                  maxLength={12} // Para formato 12.345.678-9
-                />
+              <View className="flex-row items-center mb-2">
+                <Text className="text-gray-700 font-medium text-lg">RUN</Text>
+                <Text className="text-red-500 ml-1">*</Text>
               </View>
-
+              <TextInput
+                value={run}
+                onChangeText={(text) => handleInputChange("run", text)}
+                placeholder="Formato: 12345678-9"
+                placeholderTextColor="#9CA3AF"
+                className={inputClass("run")}
+                autoCapitalize="none"
+                keyboardType="default"
+                maxLength={10}
+              />
+              {errors.run && (
+                <Text className="text-red-500 mt-1">{errors.run}</Text>
+              )}
             </View>
-
 
             <View className="mb-6">
-              <Text className="text-gray-700 font-medium mb-2 text-lg">
-                Contraseña <Text className="text-red-500">*</Text>
-              </Text>
+              <View className="flex-row items-center mb-2">
+                <Text className="text-gray-700 font-medium text-lg">Contraseña</Text>
+                <Text className="text-red-500 ml-1">*</Text>
+              </View>
+
               <View className="relative">
                 <TextInput
-                  className={`
-                    bg-gray-100 rounded-lg px-4 py-4 pr-12 text-base border}
-                   `}
+                  value={password}
+                  onChangeText={(text) => handleInputChange("password", text)}
+                  secureTextEntry={!showPassword}
+                  placeholder="Ingrese su contraseña"
+                  placeholderTextColor="#9CA3AF"
+                  className={inputClass("password") + " pr-12"}
                 />
-
                 <TouchableOpacity
                   className="absolute right-4 top-4"
+                  onPress={() => setShowPassword((prev) => !prev)}
                 >
-                  <EyeOff size={20} color="#6B7280" />
+                  {showPassword ? (
+                    <Eye size={20} color="#6B7280" />
+                  ) : (
+                    <EyeOff size={20} color="#6B7280" />
+                  )}
                 </TouchableOpacity>
               </View>
+              {errors.password && (
+                <Text className="text-red-500 mt-1">{errors.password}</Text>
+              )}
             </View>
 
-    
             <CustomButton
-              onPress={ () => router.push("./map")}
+              onPress={handleLogin}
               variant="primary"
               size="lg"
               fullWidth
+              disabled={loginMutation.isPending}
             >
-              Continuar
+              {loginMutation.isPending ? "Verificando..." : "Continuar"}
             </CustomButton>
           </View>
-
-
-
         </View>
       </SafeAreaView>
-    
     </>
-  )
-}
+  );
+};
 
-export default LoginScreen
+export default LoginScreen;

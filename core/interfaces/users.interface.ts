@@ -6,6 +6,8 @@ export interface PayloadCreateUser {
   password: string;
 }
 
+export type PayloadCreateUserWhitoutPwd = Omit<PayloadCreateUser, "password">;
+
 export const PERFILES = {
   CIUDADANO: 2,
 };
@@ -20,3 +22,5 @@ export interface User {
     nombre: string | null;
   };
 }
+
+export type PayloadLogin = Pick<User, "run"> & { password: string };

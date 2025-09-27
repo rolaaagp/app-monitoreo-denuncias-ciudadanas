@@ -1,5 +1,5 @@
 import { httpClient, PRE_FIXES } from "@core/core/httpClient";
-import { PayloadCreateUser, User } from "@core/interfaces";
+import { PayloadCreateUser, PayloadLogin, User } from "@core/interfaces";
 
 export const getUser = (params: { id?: number; run?: string }) => {
   const query = new URLSearchParams(
@@ -9,7 +9,10 @@ export const getUser = (params: { id?: number; run?: string }) => {
 };
 
 export const createUser = (data: PayloadCreateUser) =>
-  httpClient.post<Omit<PayloadCreateUser, "password">>(
+  httpClient.post<{ user: User | null; user_exists: 1 | 0 }>(
     `${PRE_FIXES.USERS}/users/registro`,
     data
   );
+
+export const loginUser = (data: PayloadLogin) =>
+  httpClient.post<User | null>(`${PRE_FIXES.USERS}/auth/login`, data);

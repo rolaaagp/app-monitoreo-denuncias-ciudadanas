@@ -6,7 +6,8 @@
     "paths": {
       "@/*": ["./*"],
       "@core/*": ["./core/*"],
-      "@utils/*": ["./utils/*"]
+      "@utils/*": ["./utils/*"],
+      "@constants/*": ["./constants/*"]
     }
   },
   "include": [
