@@ -73,7 +73,7 @@ const RegistroScreen = () => {
 
         if (user) {
           login(user);
-          setTimeout(() => router.push("/map"), 1000);
+          setTimeout(() => router.push("./map"), 1000);
 
           showToast({
             title: "Registro exitoso",
