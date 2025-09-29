@@ -14,16 +14,30 @@ import React, { useState } from "react";
 import { Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+
 const ScreenDenuncia = () => {
   const [showModal, setShowModal] = useState(false);
   const [fechaHora, setFechaHora] = useState<Date | null>(null);
   const [evidenceFiles, setEvidenceFiles] = useState<FileAttachment[]>([]);
+
   const [formData, setFormData] = useState({
     categoria: "",
     subcategoria: "",
     ubicacion: "",
     descripcion: "",
+    coords: { latitude: 0, longitude: 0 },
   });
+
+  const [ubicacion, setUbicacion] = useState("");
+  const [latitude, setLatitude] = useState(0);
+  const [longitude, setLongitude] = useState(0);
+
+  const handleUbicacionChange = (ubicacion: string, lat: number, lng: number) => {
+  setUbicacion(ubicacion);
+  setLatitude(lat);
+  setLongitude(lng);
+};
+
 
   const [errors, setErrors] = useState<{ ubicacion?: string; descripcion?: string; fechaHora?: string }>({});
 
@@ -148,7 +162,28 @@ const ScreenDenuncia = () => {
                 />
                 {errors.ubicacion && <Text className="text-red-500 mt-1">{errors.ubicacion}</Text>}
                 <Text className="text-xl text-gray-500 mt-1">Ejemplo: Av. Principal 123, Centro, Ciudad</Text>
-              </View>
+              </View>  
+{/* 
+               <View className="mb-7">
+                <View className="flex-row items-center mb-2">
+                  <MapPin size={20} color="#6B7280" />
+                  <Text className="text-gray-700 font-medium ml-1 text-xl">
+                    Ubicación <Text className="text-red-500">*</Text>
+                  </Text>
+                </View>
+                <UbicacionInput
+                  ubicacion={formData.ubicacion}
+                  onChange={(ubicacion, lat, lng) => {
+                    handleInputChange("ubicacion", ubicacion);
+                    setLatitude(lat);
+                    setLongitude(lng);
+                  }}
+                />
+                {errors.ubicacion && <Text className="text-red-500 mt-1">{errors.ubicacion}</Text>}
+                <Text className="text-xl text-gray-500 mt-1">Ejemplo: Av. Principal 123, Centro, Ciudad</Text>
+              </View>  */}
+
+
 
               <View className="mb-7">
                 <View className="flex-row items-center mb-2">
