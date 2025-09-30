@@ -112,7 +112,7 @@ const RegistroScreen = () => {
           headerStyle: { backgroundColor: "#F9FAFB" },
           headerTintColor: "#374151",
           headerLeft: () => (
-            <TouchableOpacity onPress={() => router.push("/map")} style={{ paddingHorizontal: 16 }}>
+            <TouchableOpacity onPress={() => router.push("./welcome")} style={{ paddingHorizontal: 16 }}>
               <ArrowLeft size={24} color="#374151" />
             </TouchableOpacity>
           ),
